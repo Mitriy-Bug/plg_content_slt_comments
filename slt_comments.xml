@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" group="content" method="upgrade">
+	<name>PLG_CONTENT_SLT_COMMENTS</name>
+	<author>Mitriy_Bug</author>
+	<creationDate>12.01.2026</creationDate>
+	<copyright>(C) 2026 www.codersite.ru</copyright>
+	<license>GNU General Public License version 2 or later;</license>
+	<authorEmail>info@codersite.ru</authorEmail>
+	<authorUrl>https://www.codersite.ru</authorUrl>
+	<version>1.0.0</version>
+	<description>PLG_CONTENT_SLT_COMMENTS_DESC</description>
+	<namespace path="src">SLT\Plugin\Content\SltComments</namespace>
+	<files>
+		<folder plugin="slt_comments">services</folder>
+		<folder>src</folder>
+	</files>
+	<languages>
+		<language tag="ru-RU">language/ru-RU/plg_content_slt_comments.ini</language>
+		<language tag="ru-RU">language/ru-RU/plg_content_slt_comments.sys.ini</language>
+		<language tag="en-GB">language/en-GB/plg_content_slt_comments.ini</language>
+		<language tag="en-GB">language/en-GB/plg_content_slt_comments.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="catidvisible"
+					   type="category"
+					   required="true"
+					   multiple="true"
+					   default=""
+					   extension="com_content"
+					   label="PLG_CONTENT_SLT_COMMENTS_CATEGORY"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
