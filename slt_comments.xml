@@ -20,18 +20,4 @@
 		<language tag="en-GB">language/en-GB/plg_content_slt_comments.ini</language>
 		<language tag="en-GB">language/en-GB/plg_content_slt_comments.sys.ini</language>
 	</languages>
-	<config>
-		<fields name="params">
-			<fieldset name="basic">
-				<field name="catidvisible"
-					   type="category"
-					   required="true"
-					   multiple="true"
-					   default=""
-					   extension="com_content"
-					   label="PLG_CONTENT_SLT_COMMENTS_CATEGORY"
-				/>
-			</fieldset>
-		</fields>
-	</config>
 </extension>

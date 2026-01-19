@@ -53,20 +53,42 @@ final class SltComments extends CMSPlugin implements SubscriberInterface
 		if ($context !== "com_content.article" && $context !== "com_content.featured") return; // Только в материалах
 
 		$item = $event->getArgument('item');
-		if (empty($this->params->get('catidvisible')) || !in_array($item->catid,$this->params->get('catidvisible'))) return; // Только в выбранных категориях
 
-		$params = $this->componentParams;
+        $catidvisible = $this->componentParams->get('catidvisible', 'default_value');
+		if (empty($catidvisible) || !in_array($item->catid,$catidvisible)) return; // Только в выбранных категориях
+
+        $showPolicy = $this->componentParams->get('show_policy') ?? false;
 
 		$query = $this->db->getQuery(true)
 			->select('*')
 			->from($this->db->quoteName('#__slt_comments'))
 			->where($this->db->quoteName('id_content') . ' = ' . $item->id)
             ->where($this->db->quoteName('state') . ' IN (0, 1)') // берем опубликованные и не опубликованные, не опубликованные для вывода с пометкой "На модерации" для конкретного пользователя
-			->order($this->db->quoteName('date_creation') . ' ' .$params->get('sort', 'DESC'));
+			->order($this->db->quoteName('date_creation') . ' ' .$this->componentParams->get('sort', 'DESC'));
 
         $this->db->setQuery($query);
 		$commentsData = $this->db->loadObjectList();
-		$resultComments = '';
+
+        $formData = [
+            'articleID' => $item->id,
+            'limitComment' => $this->componentParams->get('limit_comment', 1000),
+            'uid' => $this->getCookieId() ?? '',
+        ];
+        $policyHtml = false;
+        if ($showPolicy) {
+            $linkPolicy = $this->componentParams->get('policy') ?? '';
+            $linkAgreement = $this->componentParams->get('agreement') ?? '';
+            $textPolicy = $this->componentParams->get('template_text_policy') ?? '';
+            $policyHtml = str_replace(
+                ['{{comment_policy}}', '{{comment_agreement}}'],
+                [htmlspecialchars($linkPolicy ?: '#', ENT_QUOTES), htmlspecialchars($linkAgreement ?: '#', ENT_QUOTES)],
+                $textPolicy
+            );
+            //Log::add(print_r($policyHtml,true), Log::INFO, 'log');
+        }
+        $formData['textPolicy'] = $policyHtml;
+
+        $commentsArray = ['itemId' => $item->id,'formData' => $formData];
 
 		if(!empty($commentsData)){
             $countActiveComments = 0;
@@ -75,14 +97,11 @@ final class SltComments extends CMSPlugin implements SubscriberInterface
                     $countActiveComments++;
                 }
             }
-            $formData = [
-                'articleID' => $item->id,
-                'limitComment' => $params->get('limit_comment', 1000),
-                'uid' => $this->getCookieId() ?? '',
-            ];
-			$commentsArray = ['comments' => $commentsData,'itemId' => $item->id, 'countActiveComments' => $countActiveComments, 'formData' => $formData];
-			$resultComments = LayoutHelper::render('components.slt_comments.comments.comments', $commentsArray);
+			$commentsArray['comments'] = $commentsData;
+            $commentsArray['countActiveComments'] = $countActiveComments;
 		}
+        //Log::add(print_r($commentsArray,true), Log::INFO, 'log');
+        $resultComments = LayoutHelper::render('components.slt_comments.comments.comments', $commentsArray);
 		$wa = $app->getDocument()->getWebAssetManager();
 		$wa->registerAndUseScript('slt.comments.form', 'com_slt_comments/sendForm.js', [], ['defer' => true]);
 		$event->addResult($resultComments);
@@ -190,7 +209,6 @@ final class SltComments extends CMSPlugin implements SubscriberInterface
         $incField = ($type === 'like') ? 'likes' : 'dislikes';
         $decField = ($type === 'like') ? 'dislikes' : 'likes';
 
-        // Один запрос
         $query = "UPDATE " . $this->db->quoteName('#__slt_comments') . " 
               SET " . $this->db->quoteName($incField) . " = " .
             $this->db->quoteName($incField) . " + 1,
