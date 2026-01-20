@@ -50,11 +50,11 @@ final class SltComments extends CMSPlugin implements SubscriberInterface
 		$app = $this->getApplication();
 		if (!$app->isClient('site')) return; // Только в публичной части
 		$context = $event->getContext();
-		if ($context !== "com_content.article" && $context !== "com_content.featured") return; // Только в материалах
+		if ($context !== "com_content.article") return; // Только в материалах
 
 		$item = $event->getArgument('item');
 
-        $catidvisible = $this->componentParams->get('catidvisible', 'default_value');
+        $catidvisible = $this->componentParams->get('catidvisible');
 		if (empty($catidvisible) || !in_array($item->catid,$catidvisible)) return; // Только в выбранных категориях
 
         $showPolicy = $this->componentParams->get('show_policy') ?? false;

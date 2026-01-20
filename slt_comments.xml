@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" group="content" method="upgrade">
-	<name>PLG_CONTENT_SLT_COMMENTS</name>
+	<name>plg_content_slt_comments</name>
 	<author>Mitriy_Bug</author>
 	<creationDate>12.01.2026</creationDate>
 	<copyright>(C) 2026 www.codersite.ru</copyright>
